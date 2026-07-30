@@ -1,0 +1,261 @@
+// i18n UI string dictionary — English only.
+// Pure module (no React) so it can be imported anywhere and keeps Vite Fast
+// Refresh happy. The LanguageProvider (LanguageContext.tsx) supplies the active
+// `lang`; components read strings via the useT() hook.
+//
+// Keys are flat dotted paths. Use {placeholder} tokens for interpolation, e.g.
+//   t('pr.detailTitle', { id: 'PR-000001' })
+
+export type Lang = 'en'
+
+export const LANGS: Lang[] = ['en']
+
+// Locale code for Intl / toLocaleString formatting.
+export function localeCode(_lang: Lang): string {
+  return 'en-US'
+}
+
+type Dict = Record<string, string>
+
+const en: Dict = {
+  // ── Common ───────────────────────────────────────────────────────────
+  'common.loading': 'Loading…',
+  'common.loadingDetail': 'Loading detail…',
+  'common.notFound': 'Not found.',
+  'common.back': '← Back',
+  'common.openInErp': 'Open in ERP ↗',
+  'common.filter.allStatuses': 'All statuses',
+
+  // ── AppLayout / navigation ───────────────────────────────────────────
+  'nav.prs': 'Requisitions',
+  'nav.pos': 'Orders',
+  'nav.invoices': 'Invoices',
+  'nav.audit': 'Audit Trail',
+  'header.settings': 'Settings',
+  'header.copilot': 'Copilot',
+  'header.fullWidth': 'Full width',
+  'header.restoreWidth': 'Restore width',
+  'header.hideCopilot': 'Hide Copilot',
+  'header.openCopilot': 'Open Copilot',
+
+  // ── Settings panel ───────────────────────────────────────────────────
+  'settings.title': 'Settings',
+  'settings.close': 'Close settings',
+  'settings.erpMode': 'ERP Connection Mode',
+  'settings.erpModeDesc': 'Controls where purchase requisition, order and invoice lists are read from.',
+  'settings.offline.label': 'Offline (local demo)',
+  'settings.offline.desc': 'Use bundled SQLite data. Left panel and Copilot always match — best for demos.',
+  'settings.online.label': 'Online (ERP)',
+  'settings.online.descDisabled': 'Requires ERP credentials in .env.',
+  'settings.online.descEnabled': 'Query the live ERP. List tools read the connected ERP.',
+  'settings.active': 'ACTIVE',
+  'settings.switching': 'Switching mode…',
+  'settings.noCredentials': 'Online mode is unavailable because no ERP credentials are set in .env.',
+  'settings.loadError': 'Failed to load settings',
+  'settings.changeError': 'Failed to change mode',
+
+  // ── PR list page ─────────────────────────────────────────────────────
+  'pr.title': 'Purchase Requisitions',
+  'pr.subtitle': 'Track and manage your purchase requisitions',
+  'pr.empty': 'No purchase requisitions found. Use the Copilot chat panel to create one.',
+  'pr.rejectPrompt': 'Reject reason (optional):',
+  'pr.rejectDefault': 'Rejected by approver',
+  'pr.detailTitle': 'PR Detail — {id}',
+  'pr.newDraft': 'New PR — draft',
+  'pr.approve': 'Approve',
+  'pr.reject': 'Reject',
+  'pr.col.number': 'PR Number',
+  'pr.col.description': 'Description',
+  'pr.col.qty': 'Qty',
+  'pr.col.estPrice': 'Est. Price',
+  'pr.col.costCentre': 'Cost Centre',
+  'pr.col.vendor': 'Vendor',
+  'pr.col.requiredDate': 'Required Date',
+  'pr.col.status': 'Status',
+  'pr.field.number': 'PR Number',
+  'pr.field.description': 'Description',
+  'pr.field.quantity': 'Quantity',
+  'pr.field.estimatedPrice': 'Estimated Price',
+  'pr.field.costCentre': 'Cost Centre',
+  'pr.field.status': 'Status',
+  'pr.field.requiredDate': 'Required Date',
+  'pr.field.createdAt': 'Created At',
+  'pr.field.s4Number': 'S4PR Number',
+  'pr.field.vendor': 'Vendor',
+  'pr.field.submittedAt': 'Submitted At',
+  'pr.field.poNumber': 'PO Number',
+  'pr.field.rejectReason': 'Reject Reason',
+
+  // ── PO list page ─────────────────────────────────────────────────────
+  'po.title': 'Purchase Orders',
+  'po.subtitle': 'Monitor open orders and goods receipt status',
+  'po.empty': 'No purchase orders yet. Approved PRs can be converted to POs via the Copilot assistant.',
+  'po.detailTitle': 'PO Detail — {id}',
+  'po.newDraft': 'New PO — draft',
+  'po.grProgress': 'Goods Receipt Progress',
+  'po.col.number': 'PO Number',
+  'po.col.sourcePr': 'Source PR',
+  'po.col.vendor': 'Vendor',
+  'po.col.description': 'Description',
+  'po.col.ordered': 'Ordered',
+  'po.col.grQty': 'GR Qty',
+  'po.col.netPrice': 'Net Price',
+  'po.col.deliveryDate': 'Delivery Date',
+  'po.col.status': 'Status',
+  'po.field.number': 'PO Number',
+  'po.field.sourcePr': 'Source PR',
+  'po.field.vendor': 'Vendor',
+  'po.field.description': 'Description',
+  'po.field.orderedQty': 'Ordered Qty',
+  'po.field.grQty': 'GR Qty',
+  'po.field.netPrice': 'Net Price',
+  'po.field.status': 'Status',
+  'po.field.orderDate': 'Order Date',
+  'po.field.deliveryDate': 'Delivery Date',
+  'po.field.s4Number': 'S4PO Number',
+  'po.field.invoicedAmt': 'Invoiced Amount',
+
+  // ── Invoice page ─────────────────────────────────────────────────────
+  'inv.title': 'Supplier Invoices',
+  'inv.subtitle': 'Three-way match status and payment blocks',
+  'inv.empty': 'No invoices yet. Ask Copilot to run invoice matching once goods are received.',
+  'inv.detailTitle': 'Invoice Detail — {id}',
+  'inv.newDraft': 'New Invoice — draft',
+  'inv.blocked': 'BLOCKED',
+  'inv.payBlockNo': 'No',
+  'inv.col.id': 'Invoice ID',
+  'inv.col.poNumber': 'PO Number',
+  'inv.col.vendor': 'Vendor',
+  'inv.col.grossAmount': 'Gross Amount',
+  'inv.col.netAmount': 'Net Amount',
+  'inv.col.invoiceDate': 'Invoice Date',
+  'inv.col.matchScore': 'Match Score',
+  'inv.col.payBlock': 'Pay Block',
+  'inv.col.status': 'Status',
+  'inv.field.id': 'Invoice ID',
+  'inv.field.poNumber': 'PO Number',
+  'inv.field.vendor': 'Vendor',
+  'inv.field.grossAmount': 'Gross Amount',
+  'inv.field.netAmount': 'Net Amount',
+  'inv.field.invoiceDate': 'Invoice Date',
+  'inv.field.matchScore': 'Match Score',
+  'inv.field.payBlock': 'Payment Block',
+  'inv.field.status': 'Status',
+  'inv.field.taxAmount': 'Tax Amount',
+  'inv.field.postingDate': 'Posting Date',
+  'inv.field.externalRef': 'External Ref',
+  'inv.field.matchDetail': 'Match Breakdown',
+
+  // ── Audit page ───────────────────────────────────────────────────────
+  'audit.title': 'Agent Audit Trail',
+  'audit.subtitle': 'Full agent execution trace — AEP evidence format + OAA policy scoring',
+  'audit.runAnalysis': 'Run OAA Analysis',
+  'audit.scoring': 'Scoring…',
+  'audit.generateReport': 'Generate Report',
+  'audit.from': 'From',
+  'audit.to': 'To',
+  'audit.load': 'Load',
+  'audit.stat.turns': 'Turns',
+  'audit.stat.toolCalls': 'Tool Calls',
+  'audit.stat.writeOps': 'Write Ops',
+  'audit.stat.errors': 'Errors',
+  'audit.stat.violations': 'Violations',
+  'audit.stat.ars': 'ARS',
+  'audit.stat.findings': 'Findings',
+  'audit.violationsTitle': 'Policy Violations & Blocked Attempts',
+  'audit.vio.time': 'Time',
+  'audit.vio.user': 'User',
+  'audit.vio.type': 'Violation Type',
+  'audit.vio.entity': 'Entity',
+  'audit.vio.detail': 'Detail',
+  'audit.findingsTitle': 'OAA Policy Findings',
+  'audit.find.severity': 'Severity',
+  'audit.find.title': 'Title',
+  'audit.find.description': 'Description',
+  'audit.find.recommendation': 'Recommendation',
+  'audit.toolStatsTitle': 'Tool Call Statistics',
+  'audit.tool.tool': 'Tool',
+  'audit.tool.calls': 'Calls',
+  'audit.tool.errors': 'Errors',
+  'audit.tool.errorRate': 'Error Rate',
+  'audit.tool.writeOps': 'Write Ops',
+  'audit.turnLogTitle': 'Turn Log',
+  'audit.turnLogEmpty': 'No agent turns recorded yet. Use Copilot to generate audit data.',
+  'audit.turn.time': 'Time',
+  'audit.turn.user': 'User',
+  'audit.turn.tools': 'Tools',
+  'audit.turn.writes': 'Writes',
+  'audit.turn.errors': 'Errors',
+  'audit.turn.userMessage': 'User Message',
+
+  // ── Copilot chat ─────────────────────────────────────────────────────
+  'copilot.title': 'Copilot',
+  'copilot.subtitle': 'Procurement Copilot',
+  'copilot.clearChat': 'Clear chat',
+  'copilot.placeholder': 'Describe what you need to procure…',
+  'copilot.stop': 'Stop',
+  'copilot.send': 'Send',
+  'copilot.stopped': '(stopped)',
+  'copilot.quickReplies': 'Quick replies',
+  'copilot.kbdSend': 'send · ',
+  'copilot.kbdNewLine': 'new line',
+  'copilot.welcome': "Hello! I'm **Procurement Copilot**, your AI procurement assistant.\n\nI can help you **create purchase requisitions**, run compliance checks, convert PRs to POs, and track your P2P lifecycle.\n\nTry: *\"I need 5 hydraulic pumps for maintenance by end of August\"*",
+  'copilot.connectionError': 'Connection error: {message}',
+
+  // Tool progress labels (chips shown while a tool runs)
+  'tool.search_materials': 'Searching materials',
+  'tool.search_vendors': 'Searching vendors',
+  'tool.get_cost_centre': 'Checking cost centre',
+  'tool.check_budget': 'Checking budget',
+  'tool.save_pr_draft': 'Saving PR draft',
+  'tool.get_pr_draft': 'Loading PR draft',
+  'tool.run_compliance_checks': 'Running compliance checks',
+  'tool.submit_pr': 'Submitting PR',
+  'tool.list_purchase_requisitions': 'Loading PR list',
+  'tool.get_pr_detail': 'Loading PR detail',
+  'tool.list_purchase_orders': 'Loading PO list',
+  'tool.get_po_detail': 'Loading PO detail',
+  'tool.list_invoices': 'Loading invoices',
+  'tool.run_invoice_match': 'Running 3-way match',
+  'tool.convert_pr_to_po': 'Converting PR to PO',
+  'tool.get_audit_log': 'Loading audit log',
+  'tool.search_catalog_price': 'Searching catalog prices',
+  'tool.ui_action': 'Updating view',
+
+  // ── Document form ────────────────────────────────────────────────────
+  'form.draftEditing': 'Draft · editing',
+  'form.unsavedChange': '• {n} unsaved change',
+  'form.unsavedChanges': '• {n} unsaved changes',
+  'form.draftHint': '{kind} draft — fields update live as Copilot confirms them.',
+  'form.noFields': 'No fields captured yet. Describe what you need in the Copilot panel to start the draft.',
+  'form.modified': 'MODIFIED',
+  'form.save': 'Save draft',
+  'form.saving': 'Saving…',
+  'form.saved': 'Saved · {id}',
+  'form.saveFailed': 'Save failed',
+  'form.kind.pr': 'Purchase Requisition',
+  'form.kind.po': 'Purchase Order',
+  'form.kind.invoice': 'Invoice',
+  'form.kind.document': 'Document',
+  'form.field.materialId': 'Material',
+  'form.field.description': 'Description',
+  'form.field.quantity': 'Quantity',
+  'form.field.unit': 'Unit',
+  'form.field.estimatedPrice': 'Estimated Price',
+  'form.field.currency': 'Currency',
+  'form.field.costCenterId': 'Cost Centre',
+  'form.field.vendorId': 'Vendor',
+  'form.field.requiredBy': 'Required Date',
+  'form.field.requiredDate': 'Required Date',
+}
+
+const STRINGS: Record<Lang, Dict> = { en }
+
+// Translate `key` for `lang`, interpolating {token} params. Falls back to the
+// English string, then to the raw key, so a missing translation never blanks
+// the UI.
+export function translate(lang: Lang, key: string, params?: Record<string, string | number>): string {
+  const raw = STRINGS[lang][key] ?? STRINGS.en[key] ?? key
+  if (!params) return raw
+  return raw.replace(/\{(\w+)\}/g, (_, name) => (name in params ? String(params[name]) : `{${name}}`))
+}

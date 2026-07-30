@@ -1,0 +1,43 @@
+{
+  "vendors": [
+    { "VendorId": "V001", "Name": "Meridian Industrial Supply", "City": "Portland", "Country": "US", "IsBlocked": false, "IsDeleted": false, "PaymentTerms": "NT30", "Currency": "USD" },
+    { "VendorId": "V002", "Name": "Northwind Tools & Hardware", "City": "Chicago", "Country": "US", "IsBlocked": false, "IsDeleted": false, "PaymentTerms": "NT45", "Currency": "USD" },
+    { "VendorId": "V003", "Name": "Apex Office Solutions", "City": "Austin", "Country": "US", "IsBlocked": false, "IsDeleted": false, "PaymentTerms": "NT30", "Currency": "USD" },
+    { "VendorId": "V004", "Name": "Blackline Fasteners Co.", "City": "Cleveland", "Country": "US", "IsBlocked": true, "IsDeleted": false, "PaymentTerms": "NT60", "Currency": "USD" },
+    { "VendorId": "V005", "Name": "Cascade Electrical Distributors", "City": "Seattle", "Country": "US", "IsBlocked": false, "IsDeleted": false, "PaymentTerms": "NT30", "Currency": "USD" }
+  ],
+  "materials": [
+    { "MaterialId": "MAT-PUMP-750", "Description": "750W Submersible Drainage Pump", "MaterialType": "HALB", "MaterialGroup": "PUMPS", "BaseUnit": "EA", "PurchaseUnit": "EA" },
+    { "MaterialId": "MAT-BOLT-M12", "Description": "High-Tensile Hex Bolt M12x50 Zinc-Plated", "MaterialType": "ROH", "MaterialGroup": "FASTENERS", "BaseUnit": "EA", "PurchaseUnit": "EA" },
+    { "MaterialId": "MAT-LAPTOP-14", "Description": "14-inch Business Laptop, 16GB RAM", "MaterialType": "HALB", "MaterialGroup": "IT_HARDWARE", "BaseUnit": "EA", "PurchaseUnit": "EA" },
+    { "MaterialId": "MAT-CABLE-CAT6", "Description": "Cat6 Ethernet Cable 305m Reel", "MaterialType": "ROH", "MaterialGroup": "ELECTRICAL", "BaseUnit": "RL", "PurchaseUnit": "RL" },
+    { "MaterialId": "MAT-CHAIR-ERG", "Description": "Ergonomic Office Chair, Adjustable", "MaterialType": "HALB", "MaterialGroup": "FURNITURE", "BaseUnit": "EA", "PurchaseUnit": "EA" },
+    { "MaterialId": "MAT-DRILL-18V", "Description": "18V Cordless Combi Drill Kit", "MaterialType": "HALB", "MaterialGroup": "POWER_TOOLS", "BaseUnit": "EA", "PurchaseUnit": "EA" }
+  ],
+  "costCenters": [
+    { "CostCenterId": "CC-IT-001", "ControllingArea": "A000", "Description": "Information Technology", "ValidFrom": "2020-01-01", "ValidTo": "2099-12-31", "IsActive": true, "ResponsiblePerson": "IT Director" },
+    { "CostCenterId": "CC-OPS-001", "ControllingArea": "A000", "Description": "Facilities & Operations", "ValidFrom": "2020-01-01", "ValidTo": "2099-12-31", "IsActive": true, "ResponsiblePerson": "Operations Manager" },
+    { "CostCenterId": "CC-FAC-001", "ControllingArea": "A000", "Description": "Building Maintenance", "ValidFrom": "2020-01-01", "ValidTo": "2099-12-31", "IsActive": true, "ResponsiblePerson": "Facilities Lead" },
+    { "CostCenterId": "CC-OLD-009", "ControllingArea": "A000", "Description": "Legacy R&D (closed)", "ValidFrom": "2018-01-01", "ValidTo": "2023-12-31", "IsActive": false, "ResponsiblePerson": "N/A" }
+  ],
+  "budgets": [
+    { "CostCenterId": "CC-IT-001", "FiscalYear": "2026", "TotalBudget": 150000.00, "UsedBudget": 87000.00, "Currency": "USD" },
+    { "CostCenterId": "CC-OPS-001", "FiscalYear": "2026", "TotalBudget": 80000.00, "UsedBudget": 74500.00, "Currency": "USD" },
+    { "CostCenterId": "CC-FAC-001", "FiscalYear": "2026", "TotalBudget": 45000.00, "UsedBudget": 12000.00, "Currency": "USD" }
+  ],
+  "prDrafts": [],
+  "purchaseRequisitions": [
+    { "PRNumber": "PR-000001", "MaterialId": "MAT-PUMP-750", "Description": "750W Submersible Drainage Pump for site drainage", "Quantity": 2, "Unit": "EA", "EstimatedPrice": 259.99, "Currency": "USD", "CostCenterId": "CC-OPS-001", "VendorId": "V001", "RequiredDate": "2026-08-15", "Status": "APPROVED", "CreatedBy": "demo_user", "CreatedAt": "2026-07-01T09:00:00Z", "SubmittedAt": "2026-07-01T09:05:00Z", "PONumber": "", "RejectReason": "" },
+    { "PRNumber": "PR-000002", "MaterialId": "MAT-LAPTOP-14", "Description": "14-inch Business Laptops for new hires", "Quantity": 5, "Unit": "EA", "EstimatedPrice": 1120.00, "Currency": "USD", "CostCenterId": "CC-IT-001", "VendorId": "V003", "RequiredDate": "2026-08-30", "Status": "PENDING_APPROVAL", "CreatedBy": "demo_user", "CreatedAt": "2026-07-10T14:20:00Z", "SubmittedAt": "2026-07-10T14:25:00Z", "PONumber": "", "RejectReason": "" },
+    { "PRNumber": "PR-000003", "MaterialId": "MAT-CABLE-CAT6", "Description": "Cat6 cabling for office expansion", "Quantity": 3, "Unit": "RL", "EstimatedPrice": 89.50, "Currency": "USD", "CostCenterId": "CC-IT-001", "VendorId": "V005", "RequiredDate": "2026-09-01", "Status": "APPROVED", "CreatedBy": "demo_user", "CreatedAt": "2026-07-12T11:00:00Z", "SubmittedAt": "2026-07-12T11:10:00Z", "PONumber": "", "RejectReason": "" }
+  ],
+  "purchaseOrders": [
+    { "PONumber": "PO-000001", "PRNumber": "PR-000001", "VendorId": "V001", "MaterialId": "MAT-PUMP-750", "Description": "750W Submersible Drainage Pump", "OrderedQty": 2, "Unit": "EA", "NetPrice": 259.99, "Currency": "USD", "CostCenterId": "CC-OPS-001", "PurchasingOrg": "", "PurchasingGroup": "", "Plant": "", "OrderDate": "2026-07-03", "DeliveryDate": "2026-08-15", "Status": "PARTIAL_GR", "GRQty": 1, "InvoicedAmt": 0.00 }
+  ],
+  "goodsReceipts": [
+    { "GRNumber": "GR-000001", "PONumber": "PO-000001", "MaterialId": "MAT-PUMP-750", "ReceivedQty": 1, "Unit": "EA", "PostingDate": "2026-07-18", "DeliveryNote": "DN-88213", "CreatedBy": "demo_user", "CreatedAt": "2026-07-18T10:00:00Z" }
+  ],
+  "supplierInvoices": [
+    { "InvoiceId": "INV-000001", "PONumber": "PO-000001", "VendorId": "V001", "GrossAmount": 623.98, "TaxAmount": 103.99, "NetAmount": 519.99, "Currency": "USD", "InvoiceDate": "2026-07-20", "PostingDate": "2026-07-21", "ExternalRef": "MIS-INV-2026-4421", "Status": "PENDING", "MatchScore": 0.00, "MatchDetail": "", "PaymentBlock": false, "CreatedBy": "demo_user", "CreatedAt": "2026-07-21T09:00:00Z" }
+  ]
+}

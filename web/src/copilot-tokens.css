@@ -1,0 +1,41 @@
+/* Copilot Chat Design Tokens */
+:root {
+  --jc-accent: #5b1f9c;
+  --jc-accent-mid: #4c2d9e;
+  --jc-accent-dark: #2d1b6e;
+  --jc-accent-hdr: #6b4bb8;
+  --jc-blue: #1452cc;
+
+  --jc-green: #0a7c4a;
+  --jc-red: #b91c1c;
+  --jc-red-bg: #fdeded;
+  --jc-warning: #b45309;
+
+  --jc-bg: #ffffff;
+  --jc-bg-warm: #fbfaf6;
+  --jc-bg-light: #f0eee7;
+
+  --jc-border: #efece2;
+  --jc-border-warm: #e3dfd1;
+  --jc-border-muted: #cfc9b6;
+
+  --jc-text: #1b2230;
+  --jc-text-secondary: #3d3d45;
+  --jc-text-muted: #5a5244;
+  --jc-text-faint: #6b6555;
+
+  --jc-code-bg: #1f2937;
+  --jc-code-text: #f3f4f6;
+
+  --jc-table-divider: rgba(0, 0, 0, 0.06);
+
+  --jc-accent-rgb: 91, 31, 156;
+  --jc-blue-rgb: 20, 82, 204;
+  --jc-green-rgb: 10, 124, 74;
+  --jc-dark-rgb: 14, 27, 51;
+  --jc-white-rgb: 255, 255, 255;
+  --jc-shimmer-rgb: 192, 132, 252;
+  --jc-purple-light-rgb: 107, 75, 184;
+  --jc-glow-rgb: 170, 59, 255;
+  --jc-red-rgb: 179, 36, 36;
+}
