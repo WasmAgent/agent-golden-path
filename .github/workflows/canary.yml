@@ -1,0 +1,46 @@
+name: Cross-package regression canary
+
+# Reinstalls the LATEST published @wasmagent/* and @openagentaudit/* core
+# packages (ignoring the committed lockfile) and runs the end-to-end chain
+# test. This turns the golden path into a canary for the whole provable-agent
+# stack: if a freshly published core package breaks the documented
+# execute → verify → evidence → passport flow, this job goes red within a day
+# of the publish, independent of this repo's own pinned dependency versions.
+#
+# The regular CI workflow (ci.yml) still tests against the pinned lockfile on
+# every push/PR; this is the complementary "latest published" signal.
+
+on:
+  schedule:
+    # 06:00 UTC daily — after typical release windows.
+    - cron: "0 6 * * *"
+  workflow_dispatch: {}
+
+jobs:
+  chain-against-latest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Upgrade core stack to latest published
+        # Bump every @wasmagent/* and @openagentaudit/* dependency to its
+        # latest published version, then install WITHOUT --frozen-lockfile so
+        # the new versions actually resolve. We do not commit the result; the
+        # working tree is throwaway.
+        run: |
+          set -euo pipefail
+          PKGS=$(node -e "const d=require('./package.json').dependencies||{}; console.log(Object.keys(d).filter(k=>k.startsWith('@wasmagent/')||k.startsWith('@openagentaudit/')).map(k=>k+'@latest').join(' '))")
+          echo "Upgrading: $PKGS"
+          bun add $PKGS
+          echo "----- resolved core versions -----"
+          node -e "const d=require('./package.json').dependencies; for (const k of Object.keys(d)) if (k.startsWith('@wasmagent/')||k.startsWith('@openagentaudit/')) console.log(k, d[k]);"
+
+      - name: Type-check against latest
+        run: bun run ts-check
+
+      - name: End-to-end chain test against latest
+        run: bun run test
