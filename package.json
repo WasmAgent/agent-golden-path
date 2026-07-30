@@ -1,5 +1,5 @@
 {
-  "name": "wasmagent-golden-path",
+  "name": "agent-golden-path",
   "version": "1.0.0",
   "description": "Golden-path reference app for the WasmAgent provable-agent stack: agent execution → tool admission → compliance verification → signed AEP evidence → audit report + trust passport, end to end.",
   "type": "commonjs",

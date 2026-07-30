@@ -1,4 +1,4 @@
-# WasmAgent Golden Path — Procurement Copilot
+# Agent Golden Path — Procurement Copilot
 
 A **reference application** that demonstrates the WasmAgent provable-agent stack end to end:
 
