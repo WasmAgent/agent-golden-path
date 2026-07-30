@@ -1,5 +1,12 @@
 # Agent Golden Path — Procurement Copilot
 
+> **The canonical golden path for the WasmAgent provable-agent stack.** This is the
+> reference implementation the rest of the ecosystem points to: a single, runnable,
+> real-world application that wires every layer of the stack together and proves the
+> whole chain works — not a slide, not a stub. If you want to see how `@wasmagent/*`
+> and `@openagentaudit/*` compose into a system that can *prove what an agent did*,
+> start here.
+
 A **reference application** that demonstrates the WasmAgent provable-agent stack end to end:
 
 ```
