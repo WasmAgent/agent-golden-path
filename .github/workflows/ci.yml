@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies (root)
+        run: bun install --frozen-lockfile
+
+      - name: Type-check
+        run: bun run ts-check
+
+      - name: End-to-end chain test
+        run: bun run test
+
+      - name: Install dependencies (web)
+        run: cd web && bun install --frozen-lockfile
+
+      - name: Build web
+        run: bun run build

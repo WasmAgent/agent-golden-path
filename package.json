@@ -1,7 +1,7 @@
 {
   "name": "agent-golden-path",
   "version": "1.0.0",
-  "description": "Golden-path reference app for the WasmAgent provable-agent stack: agent execution → tool admission → compliance verification → signed AEP evidence → audit report + trust passport, end to end.",
+  "description": "Golden-path reference app for the WasmAgent provable-agent stack: agent execution \u2192 tool admission \u2192 compliance verification \u2192 signed AEP evidence \u2192 audit report + trust passport, end to end.",
   "type": "commonjs",
   "main": "src/server.ts",
   "private": true,
@@ -12,10 +12,10 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
-    "build": "cd web && npm run build",
+    "build": "cd web && bun run build",
     "ts-check": "tsc --noEmit",
-    "web:install": "cd web && npm install",
-    "web:dev": "cd web && npm run dev",
+    "web:install": "cd web && bun install",
+    "web:dev": "cd web && bun run dev",
     "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
