@@ -121,6 +121,12 @@ The chain test (`tests/chain.test.ts`) proves the pipeline works **without a liv
 it exercises the compliance guard rails and then runs a recorded turn through AEP signing
 and OAA scoring, asserting a real evidence admission score comes out the other end.
 
+**CI runs it two ways.** On every push/PR, `.github/workflows/ci.yml` runs the chain test
+against the pinned dependency versions. In addition, `.github/workflows/canary.yml` runs
+daily (06:00 UTC) and re-runs the chain test against the **latest published**
+`@wasmagent/*` and `@openagentaudit/*` packages — so an upstream release that breaks the
+golden path is caught within a day, independent of this repo's pinned versions.
+
 ## Demo
 
 See [DEMO_SCRIPT.md](DEMO_SCRIPT.md) for a guided walkthrough (~15 min): PR creation,
