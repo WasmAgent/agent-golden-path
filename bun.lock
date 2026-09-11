@@ -15,7 +15,7 @@
         "@wasmagent/ag-ui": "^1.0.10",
         "@wasmagent/agentbom-core": "^0.4.0",
         "@wasmagent/compliance": "^3.1.6",
-        "@wasmagent/core": "^3.3.0",
+        "@wasmagent/core": "^3.7.0",
         "@wasmagent/mcp-firewall": "^2.1.1",
         "@wasmagent/mcp-server": "^1.1.15",
         "@wasmagent/otel-exporter": "^2.0.0",
@@ -134,7 +134,7 @@
 
     "@wasmagent/compliance": ["@wasmagent/compliance@3.1.6", "", { "dependencies": { "@wasmagent/core": "^3.7.0", "@wasmagent/protocol": "^0.1.7", "zod": "^3.23.0" } }, "sha512-X/RYa7b+JKenuSEeRqOukoD1T40yTMAFCRaWOiEWiC70FXXeeDiz0/Ql5IR0ufmM2d/rHNX7h419+lVsn+RSyw=="],
 
-    "@wasmagent/core": ["@wasmagent/core@3.3.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.5", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-GXSd4Zk6f4SD0ku+8j1IZ3JWdYvSuxWWWdRVqLkTDj0Ch6TsQ34d3dz6lhk4ySXirptrZCyTtp2TjVDTBnShSA=="],
+    "@wasmagent/core": ["@wasmagent/core@3.7.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.7", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-AiZWCKurSVVR28mJkCamvZttjl3+56Vuoc+aR8A9Y7BKzc42ePa3Ededny2lSuwpHJZbww+Xr8O3RwrKRW9KWQ=="],
 
     "@wasmagent/mcp-firewall": ["@wasmagent/mcp-firewall@2.1.1", "", { "dependencies": { "@wasmagent/mcp-server": "^1.1.15" } }, "sha512-ZD37KKcZyyDrtw8Ec6y+uX3JYFqNu/59Tci3ITmNsSFP6/Pi82UgQKka/ej0qO9vQ14AnKgq7+iqFclCq6UA+A=="],
 
@@ -312,9 +312,11 @@
 
     "@openagentaudit/schema/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
-    "@wasmagent/compliance/@wasmagent/core": ["@wasmagent/core@3.7.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.7", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-AiZWCKurSVVR28mJkCamvZttjl3+56Vuoc+aR8A9Y7BKzc42ePa3Ededny2lSuwpHJZbww+Xr8O3RwrKRW9KWQ=="],
+    "@wasmagent/a2a/@wasmagent/core": ["@wasmagent/core@3.3.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.5", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-GXSd4Zk6f4SD0ku+8j1IZ3JWdYvSuxWWWdRVqLkTDj0Ch6TsQ34d3dz6lhk4ySXirptrZCyTtp2TjVDTBnShSA=="],
 
-    "@wasmagent/mcp-server/@wasmagent/core": ["@wasmagent/core@3.7.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.7", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-AiZWCKurSVVR28mJkCamvZttjl3+56Vuoc+aR8A9Y7BKzc42ePa3Ededny2lSuwpHJZbww+Xr8O3RwrKRW9KWQ=="],
+    "@wasmagent/ag-ui/@wasmagent/core": ["@wasmagent/core@3.3.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.5", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-GXSd4Zk6f4SD0ku+8j1IZ3JWdYvSuxWWWdRVqLkTDj0Ch6TsQ34d3dz6lhk4ySXirptrZCyTtp2TjVDTBnShSA=="],
+
+    "@wasmagent/otel-exporter/@wasmagent/core": ["@wasmagent/core@3.3.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.5", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-GXSd4Zk6f4SD0ku+8j1IZ3JWdYvSuxWWWdRVqLkTDj0Ch6TsQ34d3dz6lhk4ySXirptrZCyTtp2TjVDTBnShSA=="],
 
     "body-parser/content-type": ["content-type@2.0.0", "", {}, "sha512-j/O/d7GcZCyNl7/hwZAb606rzqkyvaDctLmckbxLzHvFBzTJHuGEdodATcP3yIRoDrLHkIATJuvzbFlp/ki2cQ=="],
 
