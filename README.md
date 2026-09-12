@@ -62,9 +62,10 @@ lives in memory, seeded from `src/seed/seed-data.json`, and resets on restart.
 | Endpoint | What it shows |
 |---|---|
 | `POST /api/chat/stream` | One agent turn. Tools are vetted at startup, high-risk calls are gated by an intent guardrail, and **every tool call is recorded** to the evidence log. |
-| `GET /api/audit/analyze` | Turns the recorded activity into AEP evidence, scores it with open-agent-audit, and returns the Evidence Admission Score + policy findings. |
+| `GET /api/audit/analyze` | Turns the recorded activity into AEP evidence, scores it with open-agent-audit, and returns the Evidence Admission Score + policy findings. Records declare `aep/v0.5` with attribution grading: `authority_origin=subject_consented`, `identity_source=organization_attested`, and — on high-risk turns — `authorized_by` (the budget owner), `attribution_backing=principal_key_signed`, the full observed grade set, and an `authorization_evidence_count`. |
 | `GET /api/audit/passport` | Issues a signed Trust Passport summarising the agent's evidence quality. |
-| `GET /api/audit/report?format=html` | The human-readable payoff: a full audit report with score cards, per-tool statistics, the OAA compliance analysis, and the passport badge. Also `format=markdown` / `format=csv`. |
+| `GET /api/audit/report?format=html` | The human-readable payoff: a full audit report with score cards, per-tool statistics, the OAA compliance analysis, and the passport badge. Also `format=markdown` (add `&download=1` for a file download) / `format=csv`. |
+| `GET /api/audit/export` | One-click evidence bundle (.zip): the report in HTML + Markdown + CSV, the signed Trust Passport, and `VERIFICATION.txt` with offline verification steps. |
 
 ## Compliance guard rails
 

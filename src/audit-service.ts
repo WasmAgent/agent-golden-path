@@ -11,6 +11,7 @@
 
 import express from 'express'
 import { randomUUID, createHash } from 'crypto'
+import { zipSync, strToU8 } from 'fflate'
 import * as store from './store'
 import { callClaudeJSON } from './llm-client'
 
@@ -356,7 +357,12 @@ export default function registerAuditRoutes(app: any) {
       if (format === 'markdown' && oaa) {
         const core = await loadCore()
         const bundle = await core.renderReport(oaa.events, oaa.findings, oaa.riskScore, oaa.inv, _reportMeta(req, narrative, oaa.aepProvenance, oaa.cryptoSummary))
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+        if (req.query.download === '1') {
+          res.setHeader('Content-Type', 'text/markdown; charset=utf-8')
+          res.setHeader('Content-Disposition', 'attachment; filename="agent-audit.md"')
+        } else {
+          res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+        }
         return res.send(bundle.markdown)
       }
 
@@ -373,8 +379,68 @@ export default function registerAuditRoutes(app: any) {
       if (passport) {
         try { const { inspectTrustPassport } = await loadPassport(); passportInspect = inspectTrustPassport(passport, { verbose: false }) } catch { /* non-fatal */ }
       }
-      res.send(renderHTML({ turns, stats, scores, passport, passportInspect }, narrative, oaaReportHtml))
+      res.send(renderHTML({ turns, stats, scores, passport, passportInspect }, narrative, oaaReportHtml, { fromDate, toDate }))
     } catch (e: any) { log.error('[audit] report error:', e); res.status(500).json({ error: e.message }) }
+  })
+
+  // One-click evidence bundle: the full report in all three formats plus the
+  // signed Trust Passport and offline verification notes, as a single zip.
+  router.get('/export', async (req: any, res: any) => {
+    try {
+      const { fromDate, toDate } = req.query
+      const turns = loadTurns(fromDate, toDate)
+      if (turns.length === 0) return res.status(404).json({ error: 'No audit data found for the selected range' })
+
+      const core = await loadCore()
+      const result = await _runOAAScoring(turns)
+      // Narrative is skipped on export: the bundle must be deterministic and
+      // not depend on the LLM being reachable.
+      const bundle = await core.renderReport(result.events, result.findings, result.riskScore, result.inv, _reportMeta(req, null, result.aepProvenance, result.cryptoSummary))
+      const passport = await buildPassport(result.riskScore, result.findings, turns, result.aepRecords, result.aepProvenance).catch(() => null)
+
+      const passportId = passport?.identity?.passport_id ?? passport?.passport_id ?? null
+      const verification = [
+        'WasmAgent Golden Path — audit bundle verification notes',
+        '=======================================================',
+        '',
+        `Generated: ${new Date().toISOString()}`,
+        `Range: ${fromDate || 'beginning'} → ${toDate || 'now'}`,
+        `Turns: ${turns.length} · Signed AEP records: ${result.aepRecords.length}`,
+        `Evidence Admission Score: ${result.riskScore.evidence_admission_score.score} (${result.riskScore.evidence_admission_score.grade})`,
+        'Evidence format: aep/v0.5 · Signatures: Ed25519 · Envelopes: DSSE',
+        passportId ? `Passport ID: ${passportId}` : 'Passport: not issued for this range',
+        '',
+        'How to verify:',
+        '1. trust-passport.json — run validateTrustPassport() and verifySignature()',
+        '   from @openagentaudit/passport to check structural integrity and the',
+        '   Ed25519 signature over the passport payload.',
+        '2. report.html / report.md / agent-audit.csv render the same scored',
+        '   evidence; the evidence hashes inside each AEP record bind reported',
+        '   outcomes to the recorded tool calls.',
+        '3. aep-record has an authorization_evidence_count committing the producer',
+        '   to its evidence population, and attribution grading (authority_origin,',
+        '   identity_source, attribution_backing) with a floor that is the weakest',
+        '   grade actually observed.',
+        '',
+        'A hosted, continuously verified view of this evidence is available at:',
+        '  https://trustavo.com',
+        '',
+        'This bundle was produced by agent-golden-path (MIT). The open-source',
+        'pipeline runs entirely locally; trustavo.com is the managed deployment',
+        'of the same OpenAgentAudit evidence chain.',
+      ].join('\n')
+
+      const zip = zipSync({
+        'report.html': strToU8(bundle.html),
+        'report.md': strToU8(bundle.markdown),
+        'agent-audit.csv': strToU8(bundle.csv),
+        ...(passport ? { 'trust-passport.json': strToU8(JSON.stringify(passport, null, 2)) } : {}),
+        'VERIFICATION.txt': strToU8(verification),
+      })
+      res.setHeader('Content-Type', 'application/zip')
+      res.setHeader('Content-Disposition', 'attachment; filename="wasmagent-audit-bundle.zip"')
+      return res.send(Buffer.from(zip))
+    } catch (e: any) { log.error('[audit] export error:', e); res.status(500).json({ error: e.message }) }
   })
 
   app.use('/api/audit', router)
@@ -388,9 +454,13 @@ function _sanitizeHtml(html: string): string {
     .replace(/javascript\s*:/gi, 'removed:')
 }
 
-function renderHTML(data: any, narrative: any, oaaReportHtml: string): string {
+function renderHTML(data: any, narrative: any, oaaReportHtml: string, range: { fromDate?: string; toDate?: string } = {}): string {
   const { turns, stats, scores, passport, passportInspect } = data
   const now = new Date().toISOString().replace('T', ' ').slice(0, 19) + ' UTC'
+  const exportQs = new URLSearchParams(
+    Object.entries({ fromDate: range.fromDate || '', toDate: range.toDate || '' }).filter(([, v]) => v)
+  ).toString()
+  const exportQ = exportQs ? `?${exportQs}&` : '?'
 
   const esc = (s: any) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
   const gradeColor = (g: string) => ({ A:'#059669', B:'#16a34a', C:'#ca8a04', D:'#ea580c', F:'#dc2626' }[g] || '#6b7280')
@@ -434,8 +504,10 @@ function renderHTML(data: any, narrative: any, oaaReportHtml: string): string {
 :root{--accent:#4f46e5;--border:#e5e7eb;--muted:#6b7280;--bg:#fff;--code-bg:#f3f4f6}
 *{box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:960px;margin:0 auto;padding:32px 24px 64px;color:#1f2937;font-size:14px;line-height:1.6}
-.no-print{text-align:right;margin-bottom:16px}
+.no-print{text-align:right;margin-bottom:16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 .no-print button{padding:7px 16px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px}
+.no-print .toolbtn{padding:7px 14px;border:1px solid var(--border);border-radius:6px;background:#fff;color:#374151;font-size:13px;text-decoration:none}
+.no-print .toolbtn:hover{border-color:var(--accent);color:var(--accent)}
 .cover{border:1px solid var(--border);border-radius:12px;padding:28px 32px;margin-bottom:28px;background:linear-gradient(135deg,#eef2ff 0%,#fff 60%)}
 .cover h1{margin:0 0 6px;font-size:24px;color:var(--accent)}
 .cover .sub{color:var(--muted);font-size:13px;margin-bottom:16px}
@@ -462,11 +534,18 @@ code{background:var(--code-bg);padding:1px 5px;border-radius:3px;font-size:12px;
 .oaa-section{border:1px solid var(--border);border-radius:10px;padding:20px;margin:24px 0}
 .oaa-section h2{margin-top:0}
 .footer{color:var(--muted);font-size:12px;margin-top:32px;padding-top:12px;border-top:1px solid var(--border)}
+.trustavo-cta{margin-top:10px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;background:linear-gradient(90deg,#f0fdf4,#fff 70%);color:#374151;font-size:12.5px}
+.trustavo-cta a{color:#059669;font-weight:600}
 @media print{.no-print{display:none}body{max-width:100%;padding:12px;font-size:11pt}.cover{background:none;page-break-inside:avoid}h2,h3{page-break-after:avoid}table{font-size:9pt}}
 </style>
 </head>
 <body>
-<div class="no-print"><button onclick="window.print()">🖨 Print / Export PDF</button></div>
+<div class="no-print">
+  <button onclick="window.print()">🖨 Print / Export PDF</button>
+  <a class="toolbtn" href="/api/audit/export${exportQ}">⬇ Bundle (.zip)</a>
+  <a class="toolbtn" href="/api/audit/report${exportQ}format=markdown&download=1">⬇ Markdown</a>
+  <a class="toolbtn" href="/api/audit/report${exportQ}format=csv">⬇ CSV</a>
+</div>
 <div class="cover">
   <h1>Procurement Copilot — Agent Audit Report</h1>
   <div class="sub">AI Procurement Copilot — Agent Execution Trace</div>
@@ -492,6 +571,9 @@ ${narrative?.intro ? `<div class="narrative">${esc(narrative.intro)}</div>` : ''
 <table><thead><tr><th>#</th><th>Time</th><th>User</th><th>Tools</th><th>Writes</th><th>Errors</th><th>User Message</th></tr></thead><tbody>${turnRows || '<tr><td colspan="7" style="color:var(--muted)">No turns recorded.</td></tr>'}</tbody></table>
 ${narrative?.conclusion ? `<h2>Auditor Conclusion</h2><div class="narrative">${esc(narrative.conclusion)}</div>` : ''}
 ${oaaReportHtml ? `<div class="oaa-section"><h2>OAA Compliance Framework Analysis</h2><p style="color:var(--muted);font-size:12px;margin-bottom:16px">Generated by <a href="https://github.com/WasmAgent/open-agent-audit" target="_blank">open-agent-audit</a> · includes OWASP Agentic Top 10, EU AI Act, NIST AI RMF, ISO 42001 mappings</p>${_sanitizeHtml(oaaReportHtml)}</div>` : ''}
-<div class="footer">Report generated ${now} · Procurement Copilot Audit System · Evidence format: <a href="https://github.com/WasmAgent/wasmagent-js/tree/main/packages/aep" target="_blank">AEP</a> + <a href="https://github.com/WasmAgent/open-agent-audit" target="_blank">open-agent-audit</a></div>
+<div class="footer">
+  Report generated ${now} · Procurement Copilot Audit System · Evidence format: <a href="https://github.com/WasmAgent/wasmagent-js/tree/main/packages/aep" target="_blank">AEP</a> + <a href="https://github.com/WasmAgent/open-agent-audit" target="_blank">open-agent-audit</a>
+  <div class="trustavo-cta">This report was rendered locally from signed AEP evidence. For a hosted, continuously verified dashboard over the same evidence chain, visit <a href="https://trustavo.com" target="_blank">trustavo.com</a>.</div>
+</div>
 </body></html>`
 }

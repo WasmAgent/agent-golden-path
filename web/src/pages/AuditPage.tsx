@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileText, BarChart2, RefreshCw, ExternalLink, ShieldAlert } from 'lucide-react'
+import { FileText, BarChart2, RefreshCw, ExternalLink, ShieldAlert, Download } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { severityLabel, auditActionLabel } from '../i18n/enums'
 
@@ -110,6 +110,17 @@ export default function AuditPage() {
     window.open(`/api/audit/report?${qs}`, '_blank')
   }
 
+  function rangeQuery() {
+    const qs = new URLSearchParams()
+    if (fromDate) qs.set('fromDate', fromDate)
+    if (toDate)   qs.set('toDate', toDate)
+    return qs.toString()
+  }
+
+  function downloadBundle() {
+    window.open(`/api/audit/export?${rangeQuery()}`, '_blank')
+  }
+
   useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Compute tool stats from loaded turns
@@ -155,6 +166,15 @@ export default function AuditPage() {
             {t('audit.generateReport')}
             <ExternalLink size={11} />
           </button>
+          <button onClick={downloadBundle} title={t('audit.bundleTip')} style={{
+            padding: '7px 14px', borderRadius: 6,
+            border: '1px solid var(--color-border)', background: '#fff',
+            fontSize: 13, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <Download size={13} />
+            {t('audit.downloadBundle')}
+          </button>
         </div>
       </div>
 
@@ -198,6 +218,20 @@ export default function AuditPage() {
             <div style={{ fontSize: 28, fontWeight: 700, color, lineHeight: 1.1 }}>{value}</div>
           </div>
         ))}
+      </div>
+
+      {/* Trustavo CTA — the evidence chain does not stop at this local report */}
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '6px 8px', alignItems: 'center',
+        border: '1px solid var(--color-border)', borderRadius: 8,
+        background: 'linear-gradient(90deg,#f0fdf4,#ffffff 70%)',
+        padding: '10px 14px', marginBottom: 24, fontSize: 13, color: 'var(--color-text-muted)',
+      }}>
+        <span>{t('audit.trustavoCta')}</span>
+        <a href="https://trustavo.com" target="_blank" rel="noreferrer"
+          style={{ color: '#059669', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+          {t('audit.trustavoLink')} <ExternalLink size={11} />
+        </a>
       </div>
 
       {/* Policy Violations — always visible if any exist */}
