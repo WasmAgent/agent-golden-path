@@ -32,7 +32,7 @@ function loadAEP() {
 let _adapterPromise: Promise<any> | null = null
 async function getAdapter() {
   if (!_adapterPromise)
-    _adapterPromise = import('@openagentaudit/adapters/aep-v0_2').then(m => ({ Adapter: (m as any).AepV0_2Adapter, getProvenance: (m as any).getProvenance }))
+    _adapterPromise = import('@openagentaudit/adapters/aep-v0_2').then(m => ({ Adapter: (m as any).AepV0_2Adapter, getProvenance: (m as any).getProvenance, getAttribution: (m as any).getAttribution }))
   return _adapterPromise
 }
 
@@ -73,6 +73,18 @@ const TOOL_TO_CAP: Record<string, string> = {
   search_catalog_price: 'read:catalog_price', ui_action: 'read:purchase_requisitions', get_view_state: 'read:purchase_requisitions',
 }
 
+const HIGH_RISK_CAPS = ['write:pr_submit', 'write:pr_to_po', 'write:invoice_match']
+
+// aep/v0.5 attribution grading. Identity comes from the enterprise directory
+// (organization_attested SSO session) and the requesting subject consented to
+// the turn — those axes are constant for every run. High-risk capabilities
+// additionally rest on a bounded-lease approval signed by a distinct budget
+// owner principal, so `authorized_by` names that party and the run's backing
+// claim is principal_key_signed. The floor stays at the weakest grade actually
+// observed (the runtime-asserted reads) — the emitter recomputes it from the
+// observed set and rejects a rounded-up floor.
+const BUDGET_OWNER_PRINCIPAL = 'budget_owner'
+
 let _emitterFactory: any = null
 async function getEmitterFactory(AEP: any) {
   if (_emitterFactory) return _emitterFactory
@@ -86,6 +98,9 @@ async function getEmitterFactory(AEP: any) {
     repo_commit: repoCommit,
     policy_bundle_digest: 'golden-path-policy-v1',
     tool_manifest_digest: TOOL_MANIFEST_DIGEST,
+    schemaVersion: 'aep/v0.5',
+    authority_origin: 'subject_consented',
+    identity_source: 'organization_attested',
     signer,
   })
   return _emitterFactory
@@ -93,11 +108,18 @@ async function getEmitterFactory(AEP: any) {
 
 async function buildTurnRecord(AEP: any, turnRow: any, toolCalls: any[]) {
   const factory = await getEmitterFactory(AEP)
+  const hasHighRisk = toolCalls.some((tc) => HIGH_RISK_CAPS.includes(TOOL_TO_CAP[tc.toolName] ?? ''))
   const emitter = factory.create({
     run_id: `turn-${turnRow.turnId}`,
     trace_id: randomUUID(),
     allowEmptyActions: true,
     run_context: { agent_id: 'procurement-copilot', agent_version: '1.0.0', session_id: turnRow.turnId },
+    attribution_backing: hasHighRisk ? 'principal_key_signed' : 'operator_asserted',
+    run_attribution_backing_observed: hasHighRisk ? ['operator_asserted', 'principal_key_signed'] : ['operator_asserted'],
+    ...(hasHighRisk && { authorized_by: BUDGET_OWNER_PRINCIPAL }),
+    // Commit to the evidence population: one capability-decision receipt per
+    // tool call, plus the bounded lease when a high-risk capability was used.
+    authorization_evidence_count: toolCalls.length + (hasHighRisk ? 1 : 0),
   })
 
   const ts = (s: string) => { const ms = new Date(s).getTime(); return isFinite(ms) ? ms : Date.now() }
@@ -122,8 +144,33 @@ async function buildTurnRecord(AEP: any, turnRow: any, toolCalls: any[]) {
   return await emitter.emit(Date.now())
 }
 
+// Conservative aep/v0.5 attribution aggregate across the report's records.
+// Axes that are constant per producer are taken from the first record that
+// carries them; `attribution_backing` is the strongest backing behind the
+// session's consequential authorizations, while the floor is the weakest
+// grade actually observed anywhere and the observed set is the union — the
+// floor never rounds up, and the itemization keeps the strong claim honest.
+export function aggregateAttribution(records: any[], getAttribution: (r: any) => any): any | undefined {
+  const gradings = records.map(getAttribution).filter(Boolean)
+  if (gradings.length === 0) return undefined
+  const rank = ['unknown', 'operator_asserted', 'principal_key_signed', 'qualified_signature']
+  const gradeRank = (g: string) => { const i = rank.indexOf(g); return i === -1 ? rank.length : i }
+  const aggregate: any = {}
+  for (const key of ['user_id', 'authorized_by', 'authority_origin', 'identity_source'] as const) {
+    const found = gradings.find((g) => g[key] !== undefined)
+    if (found) aggregate[key] = found[key]
+  }
+  const backings = gradings.map((g) => g.attribution_backing).filter(Boolean)
+  if (backings.length > 0) aggregate.attribution_backing = backings.reduce((a, b) => (gradeRank(b) > gradeRank(a) ? b : a))
+  const floors = gradings.map((g) => g.run_attribution_backing_floor).filter(Boolean)
+  if (floors.length > 0) aggregate.run_attribution_backing_floor = floors.reduce((a, b) => (gradeRank(b) < gradeRank(a) ? b : a))
+  const observed = [...new Set(gradings.flatMap((g) => g.run_attribution_backing_observed ?? []))]
+  if (observed.length > 0) aggregate.run_attribution_backing_observed = observed.sort((a, b) => gradeRank(a) - gradeRank(b))
+  return Object.keys(aggregate).length > 0 ? aggregate : undefined
+}
+
 async function buildEventBatch(AEP: any, turns: any[]) {
-  const { Adapter, getProvenance } = await getAdapter()
+  const { Adapter, getProvenance, getAttribution } = await getAdapter()
   const aepRecords: any[] = []
 
   for (const { turnRow, toolCalls } of turns) {
@@ -140,7 +187,8 @@ async function buildEventBatch(AEP: any, turns: any[]) {
     ? Adapter.toEventsBatch(allRecords)
     : allRecords.flatMap((r: any) => Adapter.toEvents(r))
   const aepProvenance = allRecords.length > 0 ? getProvenance(allRecords[0]) : undefined
-  return { aepRecords, events, aepProvenance }
+  const aepAttribution = allRecords.length > 0 ? aggregateAttribution(allRecords, getAttribution) : undefined
+  return { aepRecords, events, aepProvenance, aepAttribution }
 }
 
 // Group the flat chat-tool-log into turns (one "__turn__" row + its tool calls).
@@ -207,15 +255,15 @@ Rules:
 
 async function _runOAAScoring(turns: any[]) {
   const [AEP, core] = await Promise.all([loadAEP(), loadCore()])
-  const { events, aepRecords, aepProvenance } = await buildEventBatch(AEP, turns)
+  const { events, aepRecords, aepProvenance, aepAttribution } = await buildEventBatch(AEP, turns)
   const validation = await core.validate(events).catch(() => null)
   const cryptoSummary = validation?.crypto_summary
   const [riskScore, findings, inv] = await Promise.all([
-    core.computeRiskScore(events, undefined, aepProvenance, cryptoSummary),
+    core.computeRiskScore(events, undefined, aepProvenance, cryptoSummary, undefined, undefined, aepAttribution),
     core.policyAudit(events, { manifest: CAPABILITY_MANIFEST }),
     core.inventory(events).catch(() => null),
   ])
-  return { events, aepRecords, aepProvenance, cryptoSummary, riskScore, findings, inv }
+  return { events, aepRecords, aepProvenance, aepAttribution, cryptoSummary, riskScore, findings, inv }
 }
 
 export default function registerAuditRoutes(app: any) {

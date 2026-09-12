@@ -75,17 +75,62 @@ test('recorded tool calls produce signed AEP evidence and an OAA score', async (
   const core = await import('@openagentaudit/core')
   const { AEPEmitter, createLocalSignerFromSeed } = AEP as any
   const signer = createLocalSignerFromSeed('a'.repeat(64), 'test-key')
-  const factory = AEPEmitter.withDefaults({ model_id: 'test', model_provider: 'anthropic', runtime_version: '1.0.0', tool_manifest_digest: 'x', signer })
-  const emitter = factory.create({ run_id: `turn-${turnId}`, trace_id: randomUUID(), allowEmptyActions: true, run_context: { agent_id: 'procurement-copilot', agent_version: '1.0.0', session_id: turnId } })
+  const factory = AEPEmitter.withDefaults({ model_id: 'test', model_provider: 'anthropic', runtime_version: '1.0.0', tool_manifest_digest: 'x', signer, schemaVersion: 'aep/v0.5', authority_origin: 'subject_consented', identity_source: 'organization_attested' })
+  const emitter = factory.create({
+    run_id: `turn-${turnId}`, trace_id: randomUUID(), allowEmptyActions: true,
+    run_context: { agent_id: 'procurement-copilot', agent_version: '1.0.0', session_id: turnId },
+    // High-risk turn: the bounded lease is signed by the budget owner, so the
+    // backing claim is stronger than the floor (the runtime-asserted reads).
+    attribution_backing: 'principal_key_signed',
+    run_attribution_backing_observed: ['operator_asserted', 'principal_key_signed'],
+    authorized_by: 'budget_owner',
+    authorization_evidence_count: 3,
+  })
   emitter.addAction({ tool_name: 'submit_pr', state_changing: true, timestamp_ms: Date.now(), recording_mode: 'full', side_effect_class: 'mutate-external', capability_decision: { capability: 'write:pr_submit', subject: 'demo_user', resource: 'procurement:submit_pr', decision: 'allow', approval_mode: 'bounded-lease' } })
   const record = await emitter.emit(Date.now())
   assert.ok(record, 'AEP record emitted')
+  assert.equal(record.schema_version, 'aep/v0.5', 'record declares aep/v0.5')
+  assert.equal(record.attribution_backing, 'principal_key_signed', 'strong backing claim present')
+  assert.equal(record.run_attribution_backing_floor, 'operator_asserted', 'floor auto-computed as weakest observed — never rounded up')
+  assert.equal(record.run_attribution_backing_observed.length, 2, 'every observed grade itemized')
+  assert.equal(record.authorized_by, 'budget_owner', 'authorizing party distinct from user_id')
 
-  const { AepV0_2Adapter } = await import('@openagentaudit/adapters/aep-v0_2') as any
+  const { AepV0_2Adapter, getAttribution } = await import('@openagentaudit/adapters/aep-v0_2') as any
   const events = AepV0_2Adapter.toEventsBatch ? AepV0_2Adapter.toEventsBatch([record]) : AepV0_2Adapter.toEvents(record)
   assert.ok(events.length > 0, 'AEP record adapts to OAA events')
+
+  const attribution = getAttribution(record)
+  assert.equal(attribution?.attribution_backing, 'principal_key_signed', 'adapter extracts attribution grading')
 
   const riskScore = await core.computeRiskScore(events, undefined, undefined, undefined)
   assert.ok(riskScore.evidence_admission_score, 'OAA produced an evidence admission score')
   assert.ok(typeof riskScore.evidence_admission_score.grade === 'string', 'EAS has a letter grade')
+  // The attribution-integrity bonus is applied inside provenance_integrity and
+  // is capped at 100 — a fully-signed record already sits at the cap, so the
+  // guarantee to assert here is "honest grading never lowers the score" (the
+  // penalty path for 'unknown' grades is what differentiates in practice).
+  const scored = await core.computeRiskScore(events, undefined, undefined, undefined, undefined, undefined, attribution)
+  assert.ok(
+    scored.evidence_admission_score.score >= riskScore.evidence_admission_score.score,
+    'attribution-integrity scoring never lowers a compliant record'
+  )
+})
+
+test('attribution aggregate keeps the weakest floor across a mixed session', async () => {
+  const { aggregateAttribution } = await import('../src/audit-service')
+  const { AepV0_2Adapter, getAttribution } = await import('@openagentaudit/adapters/aep-v0_2') as any
+  const getAttr = (r: any) => getAttribution(r)
+
+  const { AEPEmitter, createLocalSignerFromSeed } = await import('@wasmagent/aep') as any
+  const signer = createLocalSignerFromSeed('a'.repeat(64), 'test-key')
+  const factory = AEPEmitter.withDefaults({ model_id: 't', model_provider: 'anthropic', runtime_version: '1', tool_manifest_digest: 'x', signer, schemaVersion: 'aep/v0.5', authority_origin: 'subject_consented', identity_source: 'organization_attested' })
+
+  const readOnly = await factory.create({ run_id: 'r1', allowEmptyActions: true, attribution_backing: 'operator_asserted', run_attribution_backing_observed: ['operator_asserted'], authorization_evidence_count: 1 }).emit(Date.now())
+  const highRisk = await factory.create({ run_id: 'r2', allowEmptyActions: true, attribution_backing: 'principal_key_signed', run_attribution_backing_observed: ['operator_asserted', 'principal_key_signed'], authorized_by: 'budget_owner', authorization_evidence_count: 2 }).emit(Date.now())
+
+  const agg = aggregateAttribution([readOnly, highRisk], getAttr)
+  assert.equal(agg.authorized_by, 'budget_owner')
+  assert.equal(agg.attribution_backing, 'principal_key_signed', 'aggregate reports the strongest backing actually exercised')
+  assert.equal(agg.run_attribution_backing_floor, 'operator_asserted', 'aggregate floor is the weakest observed — never rounded up')
+  assert.deepEqual(agg.run_attribution_backing_observed, ['operator_asserted', 'principal_key_signed'])
 })
