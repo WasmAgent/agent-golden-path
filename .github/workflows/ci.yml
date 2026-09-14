@@ -22,11 +22,16 @@ jobs:
       - name: Install dependencies (root)
         run: bun install --frozen-lockfile
 
+      # GP-2: the required lane asserts the certified stack. Drift fails here,
+      # so this can never silently test a different stack than certified.
+      - name: Certified stack check (GP-2)
+        run: node scripts/check-certified-stack.mjs
+
       - name: Type-check
         run: bun run ts-check
 
-      - name: End-to-end chain test
-        run: bun run test
+      - name: End-to-end chain test (certified stack)
+        run: bun run test:e2e:certified
 
       - name: Install dependencies (web)
         run: cd web && bun install --frozen-lockfile
