@@ -1,0 +1,14 @@
+{
+  "format": "wasmagent-golden-path-certified-stack/v1",
+  "aep_certified_target": "aep-certified-2026-09-13-03",
+  "notes": [
+    "GP-2: the required E2E lane must run against these exact resolved versions.",
+    "This file is NOT rewritten by the latest-package canary (GP-3). The canary only records its own resolution artifact.",
+    "A change to any certified version requires an explicit re-certification, not an automatic lock bump."
+  ],
+  "packages": {
+    "@wasmagent/aep": "2.9.0",
+    "@wasmagent/core": "3.7.0",
+    "@wasmagent/protocol": "0.1.10"
+  }
+}
