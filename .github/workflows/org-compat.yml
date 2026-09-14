@@ -1,0 +1,33 @@
+name: Org Compatibility
+
+# Pre-merge cross-repo compatibility gate (N2-P1-06). Calls the org-owned
+# reusable workflow, pinned by immutable SHA. The candidate PR must pass the
+# exact-stack E2E before merge, not only the local CI.
+#
+# Follow-up: make the "Org compatibility (agent-golden-path)" check required in
+# branch protection once this workflow is on main.
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "scripts/**"
+      - "web/**"
+      - "fixtures/**"
+      - "certified-stack.json"
+      - "package.json"
+      - "bun.lock"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  org-compat:
+    name: Org compatibility (agent-golden-path)
+    uses: WasmAgent/.github/.github/workflows/reusable-compat-check.yml@13bcca67098052c9591353127fac39800cd9876c
+    with:
+      repo: agent-golden-path
+      candidate_sha: ${{ github.event.pull_request.head.sha || github.sha }}
