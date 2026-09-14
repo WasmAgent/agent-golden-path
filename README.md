@@ -137,3 +137,5 @@ report.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+<!-- n4 verify irrelevant-path required-summary behavior -->
