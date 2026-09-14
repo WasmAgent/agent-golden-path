@@ -5,7 +5,7 @@
     "": {
       "name": "wasmagent-golden-path-web",
       "dependencies": {
-        "@wasmagent/react": "^1.4.0",
+        "@wasmagent/react": "^1.5.4",
         "lucide-react": "^1.27.0",
         "react": "^19.2.8",
         "react-dom": "^19.2.8",
@@ -90,11 +90,11 @@
 
     "@wasmagent/agent-prompts": ["@wasmagent/agent-prompts@1.0.3", "", {}, "sha512-2AZSdY2yx06lUBsBAk5uHho5DWUdPkaZy07fOcFn/0Q/m/4lmWqNm4kA9xN44MJ34ztbAGIJ9ygMe89e/Bplkg=="],
 
-    "@wasmagent/core": ["@wasmagent/core@3.3.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.5", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-GXSd4Zk6f4SD0ku+8j1IZ3JWdYvSuxWWWdRVqLkTDj0Ch6TsQ34d3dz6lhk4ySXirptrZCyTtp2TjVDTBnShSA=="],
+    "@wasmagent/core": ["@wasmagent/core@3.8.0", "", { "dependencies": { "@wasmagent/agent-prompts": "^1.0.3", "@wasmagent/protocol": "^0.1.7", "zod": "^3.23.0", "zod-to-json-schema": "^3.25.2" }, "peerDependencies": { "@modelcontextprotocol/sdk": ">=1.7.0" }, "optionalPeers": ["@modelcontextprotocol/sdk"] }, "sha512-8txLroHZ3QT+as6Q63JDPN7HIqLx+Vnfn2hANe3JnuG+QtpGVmye6mUnOIO6mTRD2agXBBzewbTz6wt/TMsMQw=="],
 
     "@wasmagent/protocol": ["@wasmagent/protocol@0.1.7", "", { "bin": { "wasmagent-protocol": "bin/cli.js" } }, "sha512-XOVNiky/7yGswggSr9h3IorHZal0eytCrirmV8tEJxs9pZbasKmCHdUwaZp5veGVxf7qLapsfmrq3x6nRxqA2Q=="],
 
-    "@wasmagent/react": ["@wasmagent/react@1.4.1", "", { "dependencies": { "@wasmagent/core": "^3.3.0" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-lOoWi4bI141/UxQlxk5TI6jsRUhVXJXBCa5TOfRYTjaUjkrANJ5xE4s7iRgH8Jz3e8kwZNHp/kk48X3QLOqxkw=="],
+    "@wasmagent/react": ["@wasmagent/react@1.5.4", "", { "dependencies": { "@wasmagent/core": "^3.8.0" }, "peerDependencies": { "react": ">=18.0.0" } }, "sha512-JeRCCEtBgvCtZCBWh4sQzLtEKUhLhFanKLWggrXIidhnrRO7G+eMpYd4LxwWrNuoYD6H6XqyXRCxgF9cVzCzlw=="],
 
     "bail": ["bail@2.0.2", "", {}, "sha512-0xO6mYd7JB2YesxDKplafRpsiOzPt9V02ddPCLbY1xYGPOX24NTyN50qnUxgCPcSoYMhKpAuBTjQoRZCAkUDRw=="],
 
