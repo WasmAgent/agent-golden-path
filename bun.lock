@@ -11,7 +11,7 @@
         "@openagentaudit/passport": "^0.6.1",
         "@openagentaudit/schema": "^0.7.0",
         "@wasmagent/a2a": "^1.0.10",
-        "@wasmagent/aep": "^2.7.2",
+        "@wasmagent/aep": "^2.9.0",
         "@wasmagent/ag-ui": "^1.0.10",
         "@wasmagent/agentbom-core": "^0.4.0",
         "@wasmagent/compliance": "^3.1.6",
@@ -125,7 +125,7 @@
 
     "@wasmagent/a2a": ["@wasmagent/a2a@1.0.11", "", { "dependencies": { "@wasmagent/core": "^3.3.0" } }, "sha512-S7pJjrvD6RxT9iQcg+Re/sfaqOghlauW4eRjtNKpb8mvNKZ3jLoc6717SdaKGoLraw48SWqJqJjVcHxoDC/szA=="],
 
-    "@wasmagent/aep": ["@wasmagent/aep@2.7.2", "", { "dependencies": { "@noble/ed25519": "^3.1.0", "zod": "^3.23.0" } }, "sha512-om27VOXWY7+5ar/cqDPTa8QaSQaqR88A3mwHnag3BrhdZcrhCJdYOr6SqepJHkHbJ0qLQ0Udje5FR+QHeSBG9w=="],
+    "@wasmagent/aep": ["@wasmagent/aep@2.9.0", "", { "dependencies": { "@noble/ed25519": "^3.1.0", "zod": "^3.23.0" } }, "sha512-urZONmPCYlUVfdQ9HsVCJE0lqpItSl2Rr8Pzf1xc+kkWrJpxvAYLu6Cob6kd24CTl63zMgQB8vzWpGUyBimgRg=="],
 
     "@wasmagent/ag-ui": ["@wasmagent/ag-ui@1.0.11", "", { "dependencies": { "@wasmagent/core": "^3.3.0" } }, "sha512-PyC+gCBfE3tywWsg0m5V7Yj6Uiqf7eoxp+yrydOeNRni0UMM/MivaQCAP2g3HSISOeG9Illt5oLEDFzn25pC9g=="],
 
