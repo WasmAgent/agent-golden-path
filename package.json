@@ -1,7 +1,7 @@
 {
   "name": "agent-golden-path",
   "version": "1.0.0",
-  "description": "Golden-path reference app for the WasmAgent provable-agent stack: agent execution → tool admission → compliance verification → signed AEP evidence → audit report + trust passport, end to end.",
+  "description": "Golden-path reference app for the WasmAgent provable-agent stack: agent execution \u2192 tool admission \u2192 compliance verification \u2192 signed AEP evidence \u2192 audit report + trust passport, end to end.",
   "type": "commonjs",
   "main": "src/server.ts",
   "private": true,
@@ -16,7 +16,8 @@
     "ts-check": "tsc --noEmit",
     "web:install": "cd web && bun install",
     "web:dev": "cd web && bun run dev",
-    "test": "tsx --test tests/*.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "test:e2e:certified": "bun run ts-check && tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
@@ -25,7 +26,7 @@
     "@openagentaudit/passport": "^0.6.1",
     "@openagentaudit/schema": "^0.7.0",
     "@wasmagent/a2a": "^1.0.10",
-    "@wasmagent/aep": "^2.7.2",
+    "@wasmagent/aep": "^2.9.0",
     "@wasmagent/ag-ui": "^1.0.10",
     "@wasmagent/agentbom-core": "^0.4.0",
     "@wasmagent/compliance": "^3.1.6",
